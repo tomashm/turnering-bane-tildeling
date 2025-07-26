@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHC2025 - Baneallokering</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DHC2025 - Baneallokering</h1>
+            <div class="stats">
+                <span id="totalCapacity">Total kapasitet: <strong>0</strong></span>
+                <span id="usedCapacity">Brukt: <strong>0</strong></span>
+                <span id="remainingCapacity">Ledig: <strong>0</strong></span>
+            </div>
+        </header>
+
+        <main>
+            <aside class="pools-panel">
+                <h2>Puljer</h2>
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Alle</button>
+                    <button class="filter-btn" data-filter="stuttspill">Stuttspill</button>
+                    <button class="filter-btn" data-filter="klister">Klister</button>
+                    <button class="filter-btn" data-filter="no-klister">Ikke klister</button>
+                    <button class="filter-btn" data-filter="G junior">G junior</button>
+                    <button class="filter-btn" data-filter="G12">G12</button>
+                    <button class="filter-btn" data-filter="G13">G13</button>
+                    <button class="filter-btn" data-filter="G14">G14</button>
+                    <button class="filter-btn" data-filter="G16">G16</button>
+                    <button class="filter-btn" data-filter="J junior">J junior</button>
+                    <button class="filter-btn" data-filter="J11">J11</button>
+                    <button class="filter-btn" data-filter="J12">J12</button>
+                    <button class="filter-btn" data-filter="J13">J13</button>
+                    <button class="filter-btn" data-filter="J14">J14</button>
+                    <button class="filter-btn" data-filter="J15">J15</button>
+                    <button class="filter-btn" data-filter="J16">J16</button>
+                </div>
+                <div id="poolsList" class="pools-list"></div>
+            </aside>
+
+            <section class="venues-panel">
+                <h2>Baner</h2>
+                <div id="venuesGrid" class="venues-grid"></div>
+            </section>
+        </main>
+
+        <footer>
+            <button id="autoAllocateBtn" class="auto-btn">Fordel automatisk</button>
+            <button id="undoBtn" class="undo-btn" disabled>Angre</button>
+            <button id="exportBtn" class="export-btn">Eksporter allokering</button>
+            <button id="resetBtn" class="reset-btn">Nullstill</button>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
