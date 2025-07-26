@@ -58,6 +58,47 @@ header h1 {
     margin-bottom: 10px;
 }
 
+.saved-layouts {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    color: var(--text-secondary);
+}
+
+.saved-layouts label {
+    font-weight: 600;
+}
+
+.saved-layouts-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.saved-layout-item {
+    padding: 5px 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.saved-layout-item:hover {
+    background: #e3f2fd;
+    border-color: #2196F3;
+}
+
+.saved-layout-item .delete-btn {
+    margin-left: 8px;
+    color: #f44336;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .stats {
     display: flex;
     gap: 30px;
@@ -340,14 +381,19 @@ main {
     background: rgba(255,255,255,0.5);
 }
 
-footer {
-    margin-top: 20px;
+.controls {
+    background: var(--bg-secondary);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
     display: flex;
     gap: 10px;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 }
 
-.export-btn, .reset-btn, .auto-btn, .undo-btn {
+.export-btn, .reset-btn, .auto-btn, .undo-btn, .save-btn {
     padding: 10px 20px;
     border: none;
     border-radius: 6px;
@@ -378,6 +424,15 @@ footer {
 .undo-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.save-btn {
+    background: #FF9800;
+    color: white;
+}
+
+.save-btn:hover {
+    background: #F57C00;
 }
 
 .export-btn {

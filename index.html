@@ -10,12 +10,24 @@
     <div class="container">
         <header>
             <h1>DHC2025 - Baneallokering</h1>
+            <div class="saved-layouts">
+                <label>Lagrede oppsett:</label>
+                <div id="savedLayoutsList" class="saved-layouts-list"></div>
+            </div>
             <div class="stats">
                 <span id="totalCapacity">Total kapasitet: <strong>0</strong></span>
                 <span id="usedCapacity">Brukt: <strong>0</strong></span>
                 <span id="remainingCapacity">Ledig: <strong>0</strong></span>
             </div>
         </header>
+
+        <div class="controls">
+            <button id="autoAllocateBtn" class="auto-btn">Fordel automatisk</button>
+            <button id="undoBtn" class="undo-btn" disabled>Angre</button>
+            <button id="saveBtn" class="save-btn">Lagre oppsett</button>
+            <button id="exportBtn" class="export-btn">Eksporter allokering</button>
+            <button id="resetBtn" class="reset-btn">Nullstill</button>
+        </div>
 
         <main>
             <aside class="pools-panel">
@@ -46,13 +58,6 @@
                 <div id="venuesGrid" class="venues-grid"></div>
             </section>
         </main>
-
-        <footer>
-            <button id="autoAllocateBtn" class="auto-btn">Fordel automatisk</button>
-            <button id="undoBtn" class="undo-btn" disabled>Angre</button>
-            <button id="exportBtn" class="export-btn">Eksporter allokering</button>
-            <button id="resetBtn" class="reset-btn">Nullstill</button>
-        </footer>
     </div>
 
     <script src="script.js"></script>

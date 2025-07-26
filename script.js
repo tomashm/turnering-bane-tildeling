@@ -225,6 +225,10 @@ function initializeButtons() {
     document.getElementById('resetBtn').addEventListener('click', resetAllocations);
     document.getElementById('autoAllocateBtn').addEventListener('click', autoAllocate);
     document.getElementById('undoBtn').addEventListener('click', undoLastAllocation);
+    document.getElementById('saveBtn').addEventListener('click', saveLayout);
+    
+    // Load saved layouts
+    loadSavedLayouts();
 }
 
 // Pool selection handlers
@@ -741,4 +745,119 @@ function resetAllocations() {
     
     // Update stats
     updateStats();
+}
+
+// Save layout to localStorage
+function saveLayout() {
+    const name = prompt('Navngi dette oppsettet:');
+    if (!name) return;
+    
+    const layout = {
+        name: name,
+        date: new Date().toISOString(),
+        allocations: JSON.parse(JSON.stringify(allocations))
+    };
+    
+    // Get existing layouts
+    const layouts = JSON.parse(localStorage.getItem('dhc2025-layouts') || '[]');
+    
+    // Check if name already exists
+    if (layouts.some(l => l.name === name)) {
+        if (!confirm(`Et oppsett med navn "${name}" finnes allerede. Vil du overskrive?`)) {
+            return;
+        }
+        // Remove existing layout with same name
+        const index = layouts.findIndex(l => l.name === name);
+        layouts.splice(index, 1);
+    }
+    
+    // Add new layout
+    layouts.push(layout);
+    
+    // Save to localStorage
+    localStorage.setItem('dhc2025-layouts', JSON.stringify(layouts));
+    
+    // Refresh saved layouts list
+    loadSavedLayouts();
+    
+    alert(`Oppsettet "${name}" er lagret!`);
+}
+
+// Load saved layouts list
+function loadSavedLayouts() {
+    const layouts = JSON.parse(localStorage.getItem('dhc2025-layouts') || '[]');
+    const container = document.getElementById('savedLayoutsList');
+    
+    container.innerHTML = '';
+    
+    if (layouts.length === 0) {
+        container.innerHTML = '<span style="color: #999;">Ingen lagrede oppsett</span>';
+        return;
+    }
+    
+    layouts.forEach(layout => {
+        const item = document.createElement('div');
+        item.className = 'saved-layout-item';
+        item.innerHTML = `
+            ${layout.name}
+            <span class="delete-btn" data-name="${layout.name}">×</span>
+        `;
+        
+        // Click to load
+        item.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('delete-btn')) {
+                loadLayout(layout.name);
+            }
+        });
+        
+        // Delete button
+        item.querySelector('.delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteLayout(layout.name);
+        });
+        
+        container.appendChild(item);
+    });
+}
+
+// Load a saved layout
+function loadLayout(name) {
+    const layouts = JSON.parse(localStorage.getItem('dhc2025-layouts') || '[]');
+    const layout = layouts.find(l => l.name === name);
+    
+    if (!layout) {
+        alert('Oppsettet finnes ikke!');
+        return;
+    }
+    
+    if (!confirm(`Vil du laste inn oppsettet "${name}"? Dette vil erstatte gjeldende oppsett.`)) {
+        return;
+    }
+    
+    // Save current state for undo
+    saveStateToHistory();
+    
+    // Clear and restore allocations
+    const state = {
+        allocations: layout.allocations,
+        poolElements: []
+    };
+    
+    restoreState(state);
+}
+
+// Delete a saved layout
+function deleteLayout(name) {
+    if (!confirm(`Vil du slette oppsettet "${name}"?`)) {
+        return;
+    }
+    
+    const layouts = JSON.parse(localStorage.getItem('dhc2025-layouts') || '[]');
+    const index = layouts.findIndex(l => l.name === name);
+    
+    if (index !== -1) {
+        layouts.splice(index, 1);
+        localStorage.setItem('dhc2025-layouts', JSON.stringify(layouts));
+        loadSavedLayouts();
+    }
 }
