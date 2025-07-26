@@ -2,17 +2,15 @@
 const venues = [
     { id: 'berskaug-1', name: 'Berskaug', lane: 'Bane 1', capacity: 1560 },
     { id: 'berskaug-2', name: 'Berskaug', lane: 'Bane 2', capacity: 1560 },
-    { id: 'brandengen-1', name: 'Brandengen', lane: 'Bane 1', capacity: 1560 },
+    { id: 'brandengen-1', name: 'Brandengen', lane: 'Bane 1', capacity: 1020 },
+    { id: 'brandengen-slutt-1', name: 'Brandengen', lane: 'Sluttspilbane 1', capacity: 540 },
     { id: 'drammenshallen-a', name: 'Drammenshallen', lane: 'Bane A', capacity: 840 },
     { id: 'drammenshallen-b', name: 'Drammenshallen', lane: 'Bane B', capacity: 840, noKlister: true },
     { id: 'drammenshallen-c', name: 'Drammenshallen', lane: 'Bane C', capacity: 840, noKlister: true },
     { id: 'drammenshallen-d', name: 'Drammenshallen', lane: 'Bane D', capacity: 840 },
-    { id: 'drammenshallen-stutta-a', name: 'Drammenshallen', lane: 'Stuttspilbane A', capacity: 540 },
-    { id: 'drammenshallen-stutta-b', name: 'Drammenshallen', lane: 'Stuttspilbane B', capacity: 285 },
-    { id: 'drammenshallen-stutta-c', name: 'Drammenshallen', lane: 'Stuttspilbane B+C', capacity: 240 },
-    { id: 'drammenshallen-stuttc', name: 'Drammenshallen', lane: 'Stuttspilbane C', capacity: 285 },
-    { id: 'drammenshallen-stuttd', name: 'Drammenshallen', lane: 'Stuttspilbane D', capacity: 540 },
-    { id: 'konnerud-1', name: 'Konnerud', lane: 'Bane 1', capacity: 1560 },
+    { id: 'drammenshallen-stutta-abcd', name: 'Drammenshallen', lane: 'Stuttspilbane A/B/C/D', capacity: 1890 },
+    { id: 'konnerud-1', name: 'Konnerud', lane: 'Bane 1', capacity: 1020 },
+    { id: 'konnerud-slutt-1', name: 'Konnerud', lane: 'Sluttspilbane 1', capacity: 540 },
     { id: 'orenhallen-1', name: 'Ørenhallen', lane: 'Bane 1', capacity: 1560, noKlister: true }
 ];
 
@@ -104,7 +102,8 @@ function initializeVenues() {
         venueEl.dataset.venueId = venue.id;
         
         // Check if this is a stuttspill-only venue
-        const isStuttspillOnly = venue.lane.toLowerCase().includes('stuttspil');
+        const isStuttspillOnly = venue.lane.toLowerCase().includes('stuttspil') || 
+                                venue.lane.toLowerCase().includes('sluttspil');
         if (isStuttspillOnly) {
             venueEl.classList.add('stuttspill-only');
         }
@@ -141,6 +140,48 @@ function initializePools() {
     displayPools();
 }
 
+// Create a pool element
+function createPoolElement(pool, index) {
+    const poolEl = document.createElement('div');
+    poolEl.className = 'pool-item';
+    
+    // Check if this is a stuttspill pool
+    if (pool.pool.toLowerCase().includes('stuttspill')) {
+        poolEl.classList.add('stuttspill');
+    }
+    
+    // Check if this pool uses klister
+    if (pool.klister) {
+        poolEl.classList.add('klister');
+    }
+    
+    poolEl.dataset.poolId = pool.id;
+    poolEl.dataset.class = pool.class;
+    poolEl.dataset.time = pool.time;
+    poolEl.dataset.index = index;
+    poolEl.draggable = true;
+    
+    // Set height based on time (0.5px per minute, with minimum height)
+    const heightScale = 0.5;
+    const minHeight = 30;
+    const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
+    poolEl.style.height = `${calculatedHeight}px`;
+    
+    poolEl.innerHTML = `
+        <span>${pool.class} - ${pool.pool}</span>
+        <span class="pool-time">${formatMinutes(pool.time)}</span>
+    `;
+    
+    // Add drag event listeners
+    poolEl.addEventListener('dragstart', handleDragStart);
+    poolEl.addEventListener('dragend', handleDragEnd);
+    
+    // Add click event for selection
+    poolEl.addEventListener('click', handlePoolClick);
+    
+    return poolEl;
+}
+
 // Display pools based on filter
 function displayPools(filter = 'all') {
     const poolsList = document.getElementById('poolsList');
@@ -159,44 +200,18 @@ function displayPools(filter = 'all') {
         filteredPools = pools.filter(pool => pool.class === filter);
     }
     
+    // Filter out already allocated pools
+    const allocatedPoolIds = new Set();
+    Object.values(allocations).forEach(venueAllocations => {
+        venueAllocations.forEach(pool => {
+            allocatedPoolIds.add(pool.id);
+        });
+    });
+    
+    filteredPools = filteredPools.filter(pool => !allocatedPoolIds.has(pool.id));
+    
     filteredPools.forEach((pool, index) => {
-        const poolEl = document.createElement('div');
-        poolEl.className = 'pool-item';
-        
-        // Check if this is a stuttspill pool
-        if (pool.pool.toLowerCase().includes('stuttspill')) {
-            poolEl.classList.add('stuttspill');
-        }
-        
-        // Check if this pool uses klister
-        if (pool.klister) {
-            poolEl.classList.add('klister');
-        }
-        
-        poolEl.dataset.poolId = pool.id;
-        poolEl.dataset.class = pool.class;
-        poolEl.dataset.time = pool.time;
-        poolEl.dataset.index = index;
-        poolEl.draggable = true;
-        
-        // Set height based on time (0.5px per minute, with minimum height)
-        const heightScale = 0.5;
-        const minHeight = 30;
-        const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
-        poolEl.style.height = `${calculatedHeight}px`;
-        
-        poolEl.innerHTML = `
-            <span>${pool.class} - ${pool.pool}</span>
-            <span class="pool-time">${formatMinutes(pool.time)}</span>
-        `;
-        
-        // Add drag event listeners
-        poolEl.addEventListener('dragstart', handleDragStart);
-        poolEl.addEventListener('dragend', handleDragEnd);
-        
-        // Add click event for selection
-        poolEl.addEventListener('click', handlePoolClick);
-        
+        const poolEl = createPoolElement(pool, index);
         poolsList.appendChild(poolEl);
     });
     
@@ -300,6 +315,9 @@ function handleDragStart(e) {
         if (el) el.classList.add('dragging');
     });
     
+    // Check venue capacities and mark those without enough space
+    updateVenueCapacityIndicators();
+    
     e.dataTransfer.effectAllowed = 'move';
 }
 
@@ -308,13 +326,19 @@ function handleDragEnd(e) {
     document.querySelectorAll('.pool-item.dragging').forEach(el => {
         el.classList.remove('dragging');
     });
+    
+    // Remove capacity indicators
+    document.querySelectorAll('.venue-column').forEach(venueEl => {
+        venueEl.classList.remove('no-capacity');
+    });
+    
     draggedElements = [];
 }
 
 function handleDragOver(e) {
-    e.preventDefault();
     const venueColumn = e.target.closest('.venue-column');
-    if (venueColumn) {
+    if (venueColumn && !venueColumn.classList.contains('no-capacity')) {
+        e.preventDefault();
         venueColumn.classList.add('drag-over');
     }
 }
@@ -649,8 +673,17 @@ function removeAllocation(venueId, poolId) {
     updateVenueDisplay(venueColumn, capacity, newUsed);
     
     // Add back to pool list if matching filter
-    if (currentFilter === 'all' || pool.class === currentFilter) {
-        displayPools(currentFilter);
+    const matchesFilter = 
+        currentFilter === 'all' ||
+        pool.class === currentFilter ||
+        (currentFilter === 'stuttspill' && pool.pool.toLowerCase().includes('stuttspill')) ||
+        (currentFilter === 'klister' && pool.klister === true) ||
+        (currentFilter === 'no-klister' && !pool.klister);
+    
+    if (matchesFilter) {
+        const poolsList = document.getElementById('poolsList');
+        const poolEl = createPoolElement(pool, poolsList.children.length);
+        poolsList.appendChild(poolEl);
     }
     
     // Update stats
@@ -860,4 +893,34 @@ function deleteLayout(name) {
         localStorage.setItem('dhc2025-layouts', JSON.stringify(layouts));
         loadSavedLayouts();
     }
+}
+
+// Update venue capacity indicators during drag
+function updateVenueCapacityIndicators() {
+    if (draggedElements.length === 0) return;
+    
+    // Calculate total time needed for dragged elements
+    const totalTimeNeeded = draggedElements.reduce((sum, pool) => sum + pool.time, 0);
+    
+    // Check if any dragged element has klister
+    const hasKlister = draggedElements.some(pool => pool.klister);
+    
+    // Update each venue
+    document.querySelectorAll('.venue-column').forEach(venueEl => {
+        const venueId = venueEl.dataset.venueId;
+        const venue = venues.find(v => v.id === venueId);
+        const venueSlots = venueEl.querySelector('.venue-slots');
+        const used = parseInt(venueSlots.dataset.used);
+        const remaining = venue.capacity - used;
+        
+        // Check if venue has enough capacity and klister compatibility
+        const hasCapacity = remaining >= totalTimeNeeded;
+        const klisterCompatible = !venue.noKlister || !hasKlister;
+        
+        if (!hasCapacity || !klisterCompatible) {
+            venueEl.classList.add('no-capacity');
+        } else {
+            venueEl.classList.remove('no-capacity');
+        }
+    });
 }
