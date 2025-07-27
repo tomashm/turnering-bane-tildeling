@@ -257,6 +257,7 @@ main {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
+    align-items: start;
 }
 
 .venue-column {
@@ -267,6 +268,7 @@ main {
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 200px;
 }
 
 .venue-column.drag-over {
@@ -327,8 +329,9 @@ main {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    padding-bottom: 10px;
     flex: 1;
-    overflow-y: auto;
+    position: relative;
 }
 
 .allocated-pool {
@@ -368,6 +371,26 @@ main {
 
 .allocated-pool:hover .remove-btn {
     opacity: 1;
+}
+
+.capacity-indicator {
+    background: #e8f5e9;
+    border: 3px dashed #4CAF50;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2e7d32;
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0.85;
+    margin-top: 5px;
+    min-height: 40px;
+}
+
+.capacity-indicator span {
+    padding: 8px 12px;
+    text-align: center;
 }
 
 .remove-btn {

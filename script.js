@@ -113,17 +113,18 @@ function initializeVenues() {
             venueEl.classList.add('no-klister');
         }
         
-        // Set height based on capacity (same scale as pools: 0.5px per minute)
-        const heightScale = 0.5;
-        const minHeight = 200;
-        const calculatedHeight = Math.max(venue.capacity * heightScale, minHeight);
-        venueEl.style.height = `${calculatedHeight}px`;
+        // Remove fixed height - let content determine height
+        // venueEl will grow based on content
         
         venueEl.innerHTML = `
             <div class="venue-header">${venue.name}</div>
             <div class="venue-info" data-original-capacity="${venue.capacity}">${venue.lane} - ${formatMinutes(venue.capacity)}${venue.noKlister ? ' (ikke klister)' : ''}</div>
             <div class="venue-slots" data-capacity="${venue.capacity}" data-used="0"></div>
         `;
+        
+        // Add initial capacity indicator
+        const venueSlots = venueEl.querySelector('.venue-slots');
+        updateCapacityIndicator(venueSlots, venue.capacity, 0);
         
         // Add drag and drop event listeners
         venueEl.addEventListener('dragover', handleDragOver);
@@ -693,6 +694,7 @@ function removeAllocation(venueId, poolId) {
 // Update venue display
 function updateVenueDisplay(venueColumn, capacity, used) {
     const venueInfo = venueColumn.querySelector('.venue-info');
+    const venueSlots = venueColumn.querySelector('.venue-slots');
     const remaining = capacity - used;
     
     if (remaining < 0) {
@@ -702,6 +704,9 @@ function updateVenueDisplay(venueColumn, capacity, used) {
         venueColumn.classList.remove('over-capacity');
         venueInfo.innerHTML = `${venueInfo.textContent.split(' - ')[0]} - ${formatMinutes(capacity)} (${formatMinutes(remaining)} ledig)`;
     }
+    
+    // Update capacity indicator
+    updateCapacityIndicator(venueSlots, capacity, used);
 }
 
 // Update statistics
@@ -923,4 +928,28 @@ function updateVenueCapacityIndicators() {
             venueEl.classList.remove('no-capacity');
         }
     });
+}
+
+// Update capacity indicator
+function updateCapacityIndicator(venueSlots, capacity, used) {
+    // Remove existing indicator if any
+    const existingIndicator = venueSlots.querySelector('.capacity-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+    
+    // Don't show indicator if over capacity
+    if (used >= capacity) return;
+    
+    // Create indicator showing remaining space
+    const indicator = document.createElement('div');
+    indicator.className = 'capacity-indicator';
+    const remaining = capacity - used;
+    const heightScale = 0.5;
+    const minHeight = 40;
+    const indicatorHeight = Math.max(remaining * heightScale, minHeight);
+    indicator.style.height = `${indicatorHeight}px`;
+    indicator.innerHTML = `<span>${formatMinutes(remaining)} ledig</span>`;
+    
+    venueSlots.appendChild(indicator);
 }
