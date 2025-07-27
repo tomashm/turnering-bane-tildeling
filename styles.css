@@ -17,6 +17,7 @@
     --color-g13: #FB8C00;
     --color-g14: #E53935;
     --color-g16: #8E24AA;
+    --color-g18: #5E21AA;
     --color-j-junior: #00ACC1;
     --color-j11: #FFB300;
     --color-j12: #D81B60;
@@ -39,31 +40,158 @@ body {
     line-height: 1.6;
 }
 
+/* Startup Dialog */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.dialog-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dialog-overlay.hidden .dialog {
+    transform: scale(0.9);
+}
+
+.dialog {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(1);
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.dialog h2 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+}
+
+.dialog-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.dialog-btn {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    width: 100%;
+}
+
+.dialog-btn:hover {
+    background: #f5f5f5;
+    border-color: #2196F3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.dialog-btn h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.dialog-btn p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.saved-layouts-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
+}
+
+.saved-layouts-section h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+#savedLayoutsDialogList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.saved-layout-dialog-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.saved-layout-dialog-item:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.saved-layout-dialog-item .layout-date {
+    font-size: 12px;
+    color: #999;
+}
+
 .container {
     max-width: 1600px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
 }
 
 header {
     background: var(--bg-secondary);
-    padding: 20px;
+    padding: 10px 15px;
     border-radius: 8px;
     box-shadow: var(--shadow);
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 header h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 20px;
+    margin-bottom: 5px;
 }
 
 .saved-layouts {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 10px 0;
+    margin: 5px 0;
     color: var(--text-secondary);
+    font-size: 14px;
 }
 
 .saved-layouts label {
@@ -77,12 +205,12 @@ header h1 {
 }
 
 .saved-layout-item {
-    padding: 5px 10px;
+    padding: 3px 8px;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     transition: all 0.2s;
     position: relative;
 }
@@ -101,8 +229,9 @@ header h1 {
 
 .stats {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     color: var(--text-secondary);
+    font-size: 14px;
 }
 
 .stats strong {
@@ -111,14 +240,14 @@ header h1 {
 
 main {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 20px;
-    min-height: 600px;
+    grid-template-columns: 250px 1fr;
+    gap: 10px;
+    height: calc(100vh - 180px);
 }
 
 .pools-panel {
     background: var(--bg-secondary);
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
     box-shadow: var(--shadow);
     overflow: hidden;
@@ -127,24 +256,24 @@ main {
 }
 
 .pools-panel h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
+    font-size: 16px;
+    margin-bottom: 8px;
 }
 
 .filters {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 15px;
+    gap: 3px;
+    margin-bottom: 8px;
 }
 
 .filter-btn {
-    padding: 4px 10px;
+    padding: 2px 8px;
     border: 1px solid var(--border-color);
     background: white;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     transition: all 0.2s;
 }
 
@@ -163,21 +292,22 @@ main {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .pool-item {
-    padding: 10px;
-    border-radius: 6px;
+    padding: 6px 8px;
+    border-radius: 4px;
     cursor: move;
     color: white;
     font-weight: 500;
-    transition: all 0.2s;
+    font-size: 12px;
+    transition: all 0.2s, height 0.3s ease;
     position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 30px;
+    min-height: 20px;
 }
 
 .pool-item:hover {
@@ -186,7 +316,7 @@ main {
 }
 
 .pool-item.dragging {
-    opacity: 0.5;
+    opacity: 0.8;
 }
 
 .pool-item.selected {
@@ -196,8 +326,8 @@ main {
 }
 
 .pool-item.stuttspill {
-    border: 3px solid #FF9800;
-    padding: 7px; /* Reduce padding to compensate for border */
+    border: 2px solid #FF9800;
+    padding: 4px 6px; /* Reduce padding to compensate for border */
 }
 
 .pool-item.klister {
@@ -207,23 +337,24 @@ main {
 .pool-item.klister::after {
     content: "K";
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 2px;
+    right: 2px;
     background: var(--color-klister);
     color: white;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
 }
 
 .pool-time {
-    font-size: 12px;
+    font-size: 11px;
     opacity: 0.9;
+    padding-right: 20px;
 }
 
 /* Klasse-spesifikke farger */
@@ -232,6 +363,7 @@ main {
 .pool-item[data-class="G13"] { background-color: var(--color-g13); }
 .pool-item[data-class="G14"] { background-color: var(--color-g14); }
 .pool-item[data-class="G16"] { background-color: var(--color-g16); }
+.pool-item[data-class="G18"] { background-color: var(--color-g18); }
 .pool-item[data-class="J junior"] { background-color: var(--color-j-junior); }
 .pool-item[data-class="J11"] { background-color: var(--color-j11); }
 .pool-item[data-class="J12"] { background-color: var(--color-j12); }
@@ -242,33 +374,33 @@ main {
 
 .venues-panel {
     background: var(--bg-secondary);
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
     box-shadow: var(--shadow);
     overflow: auto;
 }
 
 .venues-panel h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
+    font-size: 16px;
+    margin-bottom: 8px;
 }
 
 .venues-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
     align-items: start;
 }
 
 .venue-column {
     background: var(--bg-primary);
     border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px;
+    border-radius: 6px;
+    padding: 8px;
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 200px;
+    min-height: 150px;
 }
 
 .venue-column.drag-over {
@@ -315,37 +447,37 @@ main {
 
 .venue-header {
     font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 5px;
+    font-size: 13px;
+    margin-bottom: 3px;
 }
 
 .venue-info {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .venue-slots {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding-bottom: 10px;
+    gap: 3px;
+    padding-bottom: 5px;
     flex: 1;
     position: relative;
 }
 
 .allocated-pool {
-    padding: 8px;
-    border-radius: 4px;
+    padding: 4px 6px;
+    border-radius: 3px;
     color: white;
-    font-size: 12px;
+    font-size: 11px;
     position: relative;
     cursor: pointer;
 }
 
 .allocated-pool.stuttspill {
-    border: 3px solid #FF9800;
-    padding: 5px; /* Reduce padding to compensate for border */
+    border: 2px solid #FF9800;
+    padding: 2px 4px; /* Reduce padding to compensate for border */
 }
 
 .allocated-pool.klister {
@@ -375,39 +507,39 @@ main {
 
 .capacity-indicator {
     background: #e8f5e9;
-    border: 3px dashed #4CAF50;
-    border-radius: 6px;
+    border: 2px dashed #4CAF50;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #2e7d32;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
     opacity: 0.85;
-    margin-top: 5px;
-    min-height: 40px;
+    margin-top: 3px;
+    min-height: 30px;
 }
 
 .capacity-indicator span {
-    padding: 8px 12px;
+    padding: 4px 8px;
     text-align: center;
 }
 
 .remove-btn {
     position: absolute;
-    right: 5px;
+    right: 3px;
     top: 50%;
     transform: translateY(-50%);
     background: rgba(255,255,255,0.3);
     border: none;
     color: white;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.2s;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1;
 }
 
@@ -417,21 +549,21 @@ main {
 
 .controls {
     background: var(--bg-secondary);
-    padding: 15px 20px;
+    padding: 8px 15px;
     border-radius: 8px;
     box-shadow: var(--shadow);
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: flex-start;
     flex-wrap: wrap;
 }
 
-.export-btn, .reset-btn, .auto-btn, .undo-btn, .save-btn {
-    padding: 10px 20px;
+.export-btn, .import-btn, .reset-btn, .auto-btn, .undo-btn, .save-btn {
+    padding: 6px 16px;
     border: none;
-    border-radius: 6px;
-    font-size: 14px;
+    border-radius: 4px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -469,12 +601,12 @@ main {
     background: #F57C00;
 }
 
-.export-btn {
+.export-btn, .import-btn {
     background: #4CAF50;
     color: white;
 }
 
-.export-btn:hover {
+.export-btn:hover, .import-btn:hover {
     background: #45a049;
 }
 

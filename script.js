@@ -30,7 +30,7 @@ const pools = [
     { id: 'g16-niva1-stutta', class: 'G16', pool: 'nivå 1 Stuttspill', time: 64, klister: true },
     { id: 'g16-niva2-a', class: 'G16', pool: 'nivå 2 A', time: 186, klister: true },
     { id: 'g16-niva2-stutta', class: 'G16', pool: 'nivå 2 Stuttspill', time: 96, klister: true },
-    { id: 'g16-elite-a', class: 'G16', pool: 'elite A', time: 360, klister: true },
+    { id: 'g18-elite-a', class: 'G18', pool: 'elite A', time: 360, klister: true },
     { id: 'j-junior-a', class: 'J junior', pool: 'A', time: 310, klister: true },
     { id: 'j-junior-stutta', class: 'J junior', pool: 'Stuttspill', time: 128, klister: true },
     { id: 'j11-a', class: 'J11', pool: 'A', time: 280 },
@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeFilters();
     initializeButtons();
     updateStats();
+    showStartupDialog();
 });
 
 // Initialize venues
@@ -162,11 +163,8 @@ function createPoolElement(pool, index) {
     poolEl.dataset.index = index;
     poolEl.draggable = true;
     
-    // Set height based on time (0.5px per minute, with minimum height)
-    const heightScale = 0.5;
-    const minHeight = 30;
-    const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
-    poolEl.style.height = `${calculatedHeight}px`;
+    // Set compact height for pool list
+    poolEl.style.height = '30px';
     
     poolEl.innerHTML = `
         <span>${pool.class} - ${pool.pool}</span>
@@ -238,6 +236,7 @@ function initializeFilters() {
 // Initialize export and reset buttons
 function initializeButtons() {
     document.getElementById('exportBtn').addEventListener('click', exportAllocations);
+    document.getElementById('importBtn').addEventListener('click', importAllocations);
     document.getElementById('resetBtn').addEventListener('click', resetAllocations);
     document.getElementById('autoAllocateBtn').addEventListener('click', autoAllocate);
     document.getElementById('undoBtn').addEventListener('click', undoLastAllocation);
@@ -299,6 +298,27 @@ let draggedElements = [];
 function handleDragStart(e) {
     const poolEl = e.target;
     
+    // First update the height BEFORE the drag starts
+    const pool = pools.find(p => p.id === poolEl.dataset.poolId);
+    if (pool) {
+        // Use same scale as allocated pools
+        const heightScale = 0.4;
+        const minHeight = 25;
+        const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
+        
+        // Remove all transitions temporarily
+        poolEl.style.transition = 'none';
+        
+        // Set height with important to override any CSS
+        poolEl.style.setProperty('height', `${calculatedHeight}px`, 'important');
+        
+        // Force a reflow to ensure the height change is applied before drag
+        void poolEl.offsetHeight;
+        
+        // Also update min-height to ensure it takes effect
+        poolEl.style.setProperty('min-height', `${calculatedHeight}px`, 'important');
+    }
+    
     // If dragging a selected item, drag all selected items
     if (selectedPools.has(poolEl.dataset.poolId)) {
         draggedElements = Array.from(selectedPools).map(poolId => {
@@ -313,7 +333,9 @@ function handleDragStart(e) {
     // Add dragging class to all dragged elements
     draggedElements.forEach(pool => {
         const el = document.querySelector(`[data-pool-id="${pool.id}"]`);
-        if (el) el.classList.add('dragging');
+        if (el) {
+            el.classList.add('dragging');
+        }
     });
     
     // Check venue capacities and mark those without enough space
@@ -323,9 +345,15 @@ function handleDragStart(e) {
 }
 
 function handleDragEnd(e) {
-    // Remove dragging class from all elements
+    // Remove dragging class from all elements and restore original height
     document.querySelectorAll('.pool-item.dragging').forEach(el => {
         el.classList.remove('dragging');
+        // Remove inline styles to restore original state
+        el.style.removeProperty('height');
+        el.style.removeProperty('min-height');
+        el.style.removeProperty('transition');
+        // Set back to compact height
+        el.style.height = '30px';
     });
     
     // Remove capacity indicators
@@ -400,8 +428,8 @@ function handleDrop(e) {
         allocatedEl.dataset.class = pool.class;
         
         // Set height based on time
-        const heightScale = 0.5;
-        const minHeight = 30;
+        const heightScale = 0.4;
+        const minHeight = 25;
         const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
         allocatedEl.style.height = `${calculatedHeight}px`;
         
@@ -497,8 +525,8 @@ function restoreState(state) {
             allocatedEl.dataset.poolId = pool.id;
             allocatedEl.dataset.class = pool.class;
             
-            const heightScale = 0.5;
-            const minHeight = 30;
+            const heightScale = 0.4;
+            const minHeight = 25;
             const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
             allocatedEl.style.height = `${calculatedHeight}px`;
             
@@ -610,8 +638,8 @@ function autoAllocate() {
             allocatedEl.dataset.poolId = pool.id;
             allocatedEl.dataset.class = pool.class;
             
-            const heightScale = 0.5;
-            const minHeight = 30;
+            const heightScale = 0.4;
+            const minHeight = 25;
             const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
             allocatedEl.style.height = `${calculatedHeight}px`;
             
@@ -682,9 +710,8 @@ function removeAllocation(venueId, poolId) {
         (currentFilter === 'no-klister' && !pool.klister);
     
     if (matchesFilter) {
-        const poolsList = document.getElementById('poolsList');
-        const poolEl = createPoolElement(pool, poolsList.children.length);
-        poolsList.appendChild(poolEl);
+        // Instead of just appending, redisplay all pools to maintain order
+        displayPools(currentFilter);
     }
     
     // Update stats
@@ -758,9 +785,136 @@ function exportAllocations() {
     URL.revokeObjectURL(url);
 }
 
+// Import allocations
+function importAllocations() {
+    // Create file input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const csv = event.target.result;
+                const lines = csv.split('\n');
+                
+                // Skip header
+                if (lines.length < 2) {
+                    alert('CSV filen er tom eller ugyldig');
+                    return;
+                }
+                
+                // Clear existing allocations without confirmation
+                resetAllocations(true);
+                
+                // Parse CSV and import allocations
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const [anlegg, bane, klasse, pulje, tid] = line.split(',');
+                    
+                    // Find venue
+                    const venue = venues.find(v => v.name === anlegg && v.lane === bane);
+                    if (!venue) {
+                        console.warn(`Kunne ikke finne bane: ${anlegg} ${bane}`);
+                        continue;
+                    }
+                    
+                    // Find pool
+                    const pool = pools.find(p => p.class === klasse && p.pool === pulje);
+                    if (!pool) {
+                        console.warn(`Kunne ikke finne pulje: ${klasse} ${pulje}`);
+                        continue;
+                    }
+                    
+                    // Add allocation
+                    if (!allocations[venue.id]) {
+                        allocations[venue.id] = [];
+                    }
+                    allocations[venue.id].push(pool);
+                }
+                
+                // Update UI
+                updateAllVenuesUI();
+                updateStats();
+                
+                alert('Allokering importert');
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Feil ved import av CSV fil');
+            }
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    input.click();
+}
+
+// Update all venues UI after import
+function updateAllVenuesUI() {
+    // Clear all venue slots
+    document.querySelectorAll('.venue-column').forEach(venueColumn => {
+        const slots = venueColumn.querySelector('.venue-slots');
+        slots.innerHTML = '';
+        slots.dataset.used = '0';
+    });
+    
+    // Rebuild venue displays
+    Object.keys(allocations).forEach(venueId => {
+        const venueColumn = document.querySelector(`[data-venue-id="${venueId}"]`);
+        const venueSlots = venueColumn.querySelector('.venue-slots');
+        const venue = venues.find(v => v.id === venueId);
+        let totalUsed = 0;
+        
+        allocations[venueId].forEach(pool => {
+            const allocatedEl = document.createElement('div');
+            allocatedEl.className = 'allocated-pool';
+            
+            if (pool.pool.toLowerCase().includes('stuttspill')) {
+                allocatedEl.classList.add('stuttspill');
+            }
+            if (pool.klister) {
+                allocatedEl.classList.add('klister');
+            }
+            
+            allocatedEl.dataset.poolId = pool.id;
+            allocatedEl.dataset.class = pool.class;
+            
+            const heightScale = 0.4;
+            const minHeight = 25;
+            const calculatedHeight = Math.max(pool.time * heightScale, minHeight);
+            allocatedEl.style.height = `${calculatedHeight}px`;
+            
+            const colorVar = `--color-${pool.class.toLowerCase().replace(' ', '-')}`;
+            const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar);
+            allocatedEl.style.backgroundColor = color;
+            
+            allocatedEl.innerHTML = `
+                ${pool.class} - ${pool.pool} (${formatMinutes(pool.time)})
+                <button class="remove-btn" onclick="removeAllocation('${venueId}', '${pool.id}')">×</button>
+            `;
+            
+            venueSlots.appendChild(allocatedEl);
+            totalUsed += pool.time;
+        });
+        
+        venueSlots.dataset.used = totalUsed;
+        updateVenueDisplay(venueColumn, venue.capacity, totalUsed);
+    });
+    
+    // Restore pool list
+    displayPools(currentFilter);
+}
+
 // Reset all allocations
-function resetAllocations() {
-    if (!confirm('Er du sikker på at du vil nullstille alle allokeringer?')) return;
+function resetAllocations(skipConfirmation = false) {
+    if (!skipConfirmation && !confirm('Er du sikker på at du vil nullstille alle allokeringer?')) return;
     
     // Clear allocations
     Object.keys(allocations).forEach(venueId => {
@@ -776,6 +930,9 @@ function resetAllocations() {
         // Reset venue display
         const capacity = parseInt(slots.dataset.capacity);
         updateVenueDisplay(venueColumn, capacity, 0);
+        
+        // Update capacity indicator
+        updateCapacityIndicator(slots, capacity, 0);
     });
     
     // Restore all pools
@@ -945,11 +1102,109 @@ function updateCapacityIndicator(venueSlots, capacity, used) {
     const indicator = document.createElement('div');
     indicator.className = 'capacity-indicator';
     const remaining = capacity - used;
-    const heightScale = 0.5;
-    const minHeight = 40;
+    const heightScale = 0.4;
+    const minHeight = 35;
     const indicatorHeight = Math.max(remaining * heightScale, minHeight);
     indicator.style.height = `${indicatorHeight}px`;
     indicator.innerHTML = `<span>${formatMinutes(remaining)} ledig</span>`;
     
     venueSlots.appendChild(indicator);
+}
+
+// Load default allocations from CSV file
+function loadDefaultAllocations() {
+    fetch('default_allokering.csv')
+        .then(response => response.text())
+        .then(csv => {
+            const lines = csv.split('\n');
+            
+            // Skip header
+            if (lines.length < 2) return;
+            
+            // Parse CSV and import allocations
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const [anlegg, bane, klasse, pulje, tid] = line.split(',');
+                
+                // Find venue
+                const venue = venues.find(v => v.name === anlegg && v.lane === bane);
+                if (!venue) {
+                    console.warn(`Kunne ikke finne bane: ${anlegg} ${bane}`);
+                    continue;
+                }
+                
+                // Find pool
+                const pool = pools.find(p => p.class === klasse && p.pool === pulje);
+                if (!pool) {
+                    console.warn(`Kunne ikke finne pulje: ${klasse} ${pulje}`);
+                    continue;
+                }
+                
+                // Add allocation
+                if (!allocations[venue.id]) {
+                    allocations[venue.id] = [];
+                }
+                allocations[venue.id].push(pool);
+            }
+            
+            // Update UI
+            updateAllVenuesUI();
+            updateStats();
+        })
+        .catch(error => {
+            console.error('Kunne ikke laste standard allokering:', error);
+        });
+}
+
+// Show startup dialog
+function showStartupDialog() {
+    const dialog = document.getElementById('startupDialog');
+    const loadDefaultBtn = document.getElementById('loadDefaultBtn');
+    const startEmptyBtn = document.getElementById('startEmptyBtn');
+    const savedLayoutsList = document.getElementById('savedLayoutsDialogList');
+    
+    // Load saved layouts in dialog
+    const layouts = JSON.parse(localStorage.getItem('dhc2025-layouts') || '[]');
+    
+    if (layouts.length > 0) {
+        savedLayoutsList.innerHTML = '';
+        layouts.forEach(layout => {
+            const item = document.createElement('div');
+            item.className = 'saved-layout-dialog-item';
+            const date = new Date(layout.date).toLocaleDateString('no-NO');
+            item.innerHTML = `
+                <span>${layout.name}</span>
+                <span class="layout-date">${date}</span>
+            `;
+            item.addEventListener('click', () => {
+                dialog.classList.add('hidden');
+                setTimeout(() => {
+                    dialog.style.display = 'none';
+                }, 300);
+                loadLayout(layout.name);
+            });
+            savedLayoutsList.appendChild(item);
+        });
+    } else {
+        document.getElementById('savedLayoutsOptions').style.display = 'none';
+    }
+    
+    // Event listeners
+    loadDefaultBtn.addEventListener('click', () => {
+        dialog.classList.add('hidden');
+        setTimeout(() => {
+            dialog.style.display = 'none';
+        }, 300);
+        loadDefaultAllocations();
+    });
+    
+    startEmptyBtn.addEventListener('click', () => {
+        dialog.classList.add('hidden');
+        setTimeout(() => {
+            dialog.style.display = 'none';
+        }, 300);
+        // No need to do anything - start with empty
+    });
 }

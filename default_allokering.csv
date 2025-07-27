@@ -1,0 +1,46 @@
+Anlegg,Bane,Klasse,Pulje,Tid (min)
+Berskaug,Bane 1,J11,A,280
+Berskaug,Bane 1,J11,B,280
+Berskaug,Bane 1,J11,C,280
+Berskaug,Bane 2,J12,A,280
+Berskaug,Bane 2,J12,B,280
+Berskaug,Bane 2,J12,C,280
+Brandengen,Bane 1,G16,nivå 2 A,186
+Brandengen,Bane 1,J16,nivå 2 A,310
+Brandengen,Bane 1,J15,C,186
+Brandengen,Sluttspilbane 1,G16,nivå 2 Stuttspill,96
+Brandengen,Sluttspilbane 1,J14,B-Stuttspill,203
+Brandengen,Sluttspilbane 1,J14,Stuttspill,203
+Drammenshallen,Bane A,G junior,A,186
+Drammenshallen,Bane A,G16,nivå 1 A,186
+Drammenshallen,Bane A,G18,elite A,360
+Drammenshallen,Bane B,G12,A,168
+Drammenshallen,Bane B,G12,B,168
+Drammenshallen,Bane B,G14,A,280
+Drammenshallen,Bane B,G14,B,116
+Drammenshallen,Bane C,G14,C,168
+Drammenshallen,Bane C,J14,A,168
+Drammenshallen,Bane C,J14,B,168
+Drammenshallen,Bane C,J14,C,168
+Drammenshallen,Bane C,J14,D,168
+Drammenshallen,Bane D,J junior,A,310
+Drammenshallen,Bane D,J16,nivå 1 A,186
+Drammenshallen,Stuttspilbane A/B/C/D,G junior,Stuttspill,96
+Drammenshallen,Stuttspilbane A/B/C/D,G16,nivå 1 Stuttspill,64
+Drammenshallen,Stuttspilbane A/B/C/D,J junior,Stuttspill,128
+Drammenshallen,Stuttspilbane A/B/C/D,J15,B-Stuttspill,224
+Drammenshallen,Stuttspilbane A/B/C/D,J15,Stuttspill,160
+Drammenshallen,Stuttspilbane A/B/C/D,J16,nivå 1 Stuttspill,96
+Drammenshallen,Stuttspilbane A/B/C/D,J16,nivå 2 Stuttspill,128
+Konnerud,Bane 1,G13,A,280
+Konnerud,Bane 1,J15,A,310
+Konnerud,Bane 1,J15,B,310
+Konnerud,Sluttspilbane 1,G13,Stuttspill,116
+Konnerud,Sluttspilbane 1,G14,Stuttspill,145
+Konnerud,Sluttspilbane 1,G14,B-Stuttspill,174
+Ørenhallen,Bane 1,J13,A,168
+Ørenhallen,Bane 1,J13,B,168
+Ørenhallen,Bane 1,J13,C,168
+Ørenhallen,Bane 1,J13,D,168
+Ørenhallen,Bane 1,J13,B-Stuttspill,203
+Ørenhallen,Bane 1,J13,Stuttspill,203

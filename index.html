@@ -7,6 +7,27 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Startup Dialog -->
+    <div id="startupDialog" class="dialog-overlay">
+        <div class="dialog">
+            <h2>Velg oppstartsvalg</h2>
+            <div class="dialog-options">
+                <button class="dialog-btn" id="loadDefaultBtn">
+                    <h3>Standard allokering</h3>
+                    <p>Last inn forhåndsdefinert baneallokering</p>
+                </button>
+                <button class="dialog-btn" id="startEmptyBtn">
+                    <h3>Tom side</h3>
+                    <p>Start med blank allokering</p>
+                </button>
+                <div id="savedLayoutsOptions" class="saved-layouts-section">
+                    <h3>Lagrede oppsett</h3>
+                    <div id="savedLayoutsDialogList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <h1>DHC2025 - Baneallokering</h1>
@@ -26,6 +47,7 @@
             <button id="undoBtn" class="undo-btn" disabled>Angre</button>
             <button id="saveBtn" class="save-btn">Lagre oppsett</button>
             <button id="exportBtn" class="export-btn">Eksporter allokering</button>
+            <button id="importBtn" class="import-btn">Importer allokering</button>
             <button id="resetBtn" class="reset-btn">Nullstill</button>
         </div>
 
@@ -42,6 +64,7 @@
                     <button class="filter-btn" data-filter="G13">G13</button>
                     <button class="filter-btn" data-filter="G14">G14</button>
                     <button class="filter-btn" data-filter="G16">G16</button>
+                    <button class="filter-btn" data-filter="G18">G18</button>
                     <button class="filter-btn" data-filter="J junior">J junior</button>
                     <button class="filter-btn" data-filter="J11">J11</button>
                     <button class="filter-btn" data-filter="J12">J12</button>
